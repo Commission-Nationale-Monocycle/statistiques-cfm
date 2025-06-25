@@ -1,6 +1,7 @@
 use crate::registration::event::Event;
 use crate::registration::registrant::Registrant;
 use std::path::PathBuf;
+use crate::registration::convention::Convention;
 use crate::registration::gender::Gender;
 
 pub fn get_test_asset(asset_name: &str) -> PathBuf {
@@ -11,7 +12,15 @@ pub fn get_test_asset(asset_name: &str) -> PathBuf {
     ))
 }
 
-pub fn get_test_registrations() -> Vec<(Registrant, Vec<usize>)> {
+pub fn get_test_convention() -> Convention {
+    Convention::new(
+        get_test_registrations(),
+        get_event_list(),
+        get_participants_by_event(),
+    )
+}
+
+fn get_test_registrations() -> Vec<(Registrant, Vec<usize>)> {
     vec![
         (Registrant::new(1, "Victor".to_string(), "Bègue".to_string(), "31.12.1966".to_string(), 59, Gender::Male, Some("vivant Club".to_string())), vec![0, 11, 15, 17, 18, 25, 26, 28]),
         (Registrant::new(2, "Dominique".to_string(), "Toussaint".to_string(), "20.06.1971".to_string(), 54, Gender::Male, Some("intérieur Club".to_string())), vec![0, 2, 4, 8, 23, 25, 26]),
@@ -66,7 +75,7 @@ pub fn get_test_registrations() -> Vec<(Registrant, Vec<usize>)> {
     ]
 }
 
-pub fn get_event_list() -> Vec<Event> {
+fn get_event_list() -> Vec<Event> {
     vec![
         Event::new(0, "Lenteur avant (planche large) - All".to_string()),
         Event::new(1, "Parcours IUF - All".to_string()),
@@ -101,7 +110,7 @@ pub fn get_event_list() -> Vec<Event> {
     ]
 }
 
-pub fn get_participants_by_event() -> Vec<Vec<Registrant>> {
+fn get_participants_by_event() -> Vec<Vec<Registrant>> {
     vec![
         vec![Registrant::new(1, "Victor".to_string(), "Bègue".to_string(), "31.12.1966".to_string(), 59, Gender::Male, Some("vivant Club".to_string())), Registrant::new(2, "Dominique".to_string(), "Toussaint".to_string(), "20.06.1971".to_string(), 54, Gender::Male, Some("intérieur Club".to_string())), Registrant::new(4, "Laurent".to_string(), "Lelièvre".to_string(), "29.01.1958".to_string(), 67, Gender::Female, Some("voile Club".to_string())), Registrant::new(8, "Bernadette".to_string(), "Dupuis".to_string(), "09.03.1948".to_string(), 77, Gender::Female, Some("force Club".to_string())), Registrant::new(14, "Sophie".to_string(), "Carre".to_string(), "19.06.2017".to_string(), 8, Gender::Female, Some("neuf Club".to_string())), Registrant::new(18, "Claude".to_string(), "Mathieu".to_string(), "25.10.1970".to_string(), 55, Gender::Female, Some("facile Club".to_string())), Registrant::new(19, "Michelle".to_string(), "Gosselin".to_string(), "09.11.1988".to_string(), 37, Gender::Female, Some("rang Club".to_string())), Registrant::new(20, "Éléonore".to_string(), "Dupré".to_string(), "12.08.1981".to_string(), 44, Gender::Male, Some("tâche Club".to_string())), Registrant::new(25, "Benoît".to_string(), "Alves".to_string(), "29.10.1988".to_string(), 37, Gender::Female, Some("paraître Club".to_string())), Registrant::new(27, "Frédérique".to_string(), "Tanguy".to_string(), "12.05.2001".to_string(), 24, Gender::Female, Some("tout Club".to_string())), Registrant::new(28, "Honoré".to_string(), "Paul".to_string(), "06.09.1966".to_string(), 59, Gender::Female, Some("afin de Club".to_string())), Registrant::new(34, "Georges".to_string(), "Pereira".to_string(), "28.07.1994".to_string(), 31, Gender::Female, Some("agir Club".to_string())), Registrant::new(41, "Hugues".to_string(), "Fouquet".to_string(), "31.12.1976".to_string(), 49, Gender::Female, Some("très Club".to_string())), Registrant::new(46, "Marianne".to_string(), "Étienne".to_string(), "03.03.1962".to_string(), 63, Gender::Female, Some("appeler Club".to_string())), Registrant::new(48, "Colette".to_string(), "Descamps".to_string(), "13.03.1982".to_string(), 43, Gender::Male, Some("faim Club".to_string()))],
         vec![Registrant::new(4, "Laurent".to_string(), "Lelièvre".to_string(), "29.01.1958".to_string(), 67, Gender::Female, Some("voile Club".to_string())), Registrant::new(5, "Christophe".to_string(), "Poirier".to_string(), "28.08.1964".to_string(), 61, Gender::Male, Some("juge Club".to_string())), Registrant::new(11, "Marine".to_string(), "Poulain".to_string(), "06.11.2009".to_string(), 16, Gender::Male, Some("refuser Club".to_string())), Registrant::new(20, "Éléonore".to_string(), "Dupré".to_string(), "12.08.1981".to_string(), 44, Gender::Male, Some("tâche Club".to_string())), Registrant::new(21, "Nicolas".to_string(), "Dijoux".to_string(), "16.12.1983".to_string(), 42, Gender::Male, Some("demain Club".to_string())), Registrant::new(27, "Frédérique".to_string(), "Tanguy".to_string(), "12.05.2001".to_string(), 24, Gender::Female, Some("tout Club".to_string())), Registrant::new(28, "Honoré".to_string(), "Paul".to_string(), "06.09.1966".to_string(), 59, Gender::Female, Some("afin de Club".to_string())), Registrant::new(34, "Georges".to_string(), "Pereira".to_string(), "28.07.1994".to_string(), 31, Gender::Female, Some("agir Club".to_string())), Registrant::new(40, "Sébastien".to_string(), "Girard".to_string(), "06.03.2007".to_string(), 18, Gender::Male, Some("puis Club".to_string())), Registrant::new(47, "Anastasie".to_string(), "Gomes".to_string(), "14.10.2002".to_string(), 23, Gender::Female, Some("voie Club".to_string())), Registrant::new(48, "Colette".to_string(), "Descamps".to_string(), "13.03.1982".to_string(), 43, Gender::Male, Some("faim Club".to_string())), Registrant::new(49, "Laurent".to_string(), "Louis".to_string(), "25.01.1948".to_string(), 77, Gender::Female, Some("obliger Club".to_string()))],

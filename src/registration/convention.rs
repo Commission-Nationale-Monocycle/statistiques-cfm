@@ -107,17 +107,12 @@ pub fn retrieve_event_list(headers: Option<Vec<String>>) -> error::Result<Vec<Ev
 mod tests {
     mod load_convention {
         use super::super::load_convention;
-        use super::super::Convention;
         use crate::registration::test_data;
         use test_data::*;
 
         #[test]
         fn success() {
-            let expected_convention = Convention::new(
-                get_test_registrations(),
-                get_event_list(),
-                get_participants_by_event(),
-            );
+            let expected_convention = get_test_convention();
 
             let path = get_test_asset("registrations.xls");
             let convention = load_convention(&path).unwrap();

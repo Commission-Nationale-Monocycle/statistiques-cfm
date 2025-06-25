@@ -3,7 +3,7 @@ use crate::error::ApplicationError;
 use crate::error::ApplicationError::WrongFormat;
 use crate::registration::gender::Gender::{Female, Male};
 
-#[derive(Debug, PartialOrd, PartialEq, Clone)]
+#[derive(Debug, PartialOrd, PartialEq, Clone, Hash, Ord, Eq)]
 pub enum Gender {
     Male,
     Female,
