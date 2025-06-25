@@ -71,7 +71,7 @@ pub fn load_convention(path: &PathBuf) -> error::Result<Convention> {
     let mut workbook: Xls<_> = open_workbook(path)?;
     let range = workbook
         .with_header_row(HeaderRow::FirstNonEmptyRow)
-        .worksheet_range("Sheet1")?;
+        .worksheet_range("Worksheet1")?;
 
     let headers = range.headers();
     let events = retrieve_event_list(headers)?;
@@ -92,7 +92,7 @@ pub fn retrieve_event_list(headers: Option<Vec<String>>) -> error::Result<Vec<Ev
     if let Some(headers) = headers {
         let events = headers
             .into_iter()
-            .filter(|header| header.contains(" - ")) // FIXME: should not detect other lines such as "Basket - Nom du capitaine"
+            .filter(|header| header.contains(" - ") && !header.contains(" - Nom du capitaine") && !header.contains(" - Nom de l'équipe") && !header.contains(" - Nom du groupe") && !header.contains(" - Nom du partenaire")) // FIXME: find a better way to exclude event details
             .enumerate()
             .map(|(index, name)| Event::new(index, name))
             .collect();
@@ -170,7 +170,6 @@ mod tests {
         }
 
         #[test]
-        #[ignore] // FIXME: reactivate once event details ignoring has been fixed.
         fn success_ignore_event_details() {
             let headers = Some(vec![
                 "Id".to_string(),
