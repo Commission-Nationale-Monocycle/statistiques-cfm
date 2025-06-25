@@ -15,10 +15,15 @@ fn draw_and_export_graph(convention: &Convention, year: u16, folder: &PathBuf) {
     drawing_area.present().unwrap();
 }
 
-fn draw_graph_by_gender_by_event<'a>(convention: &Convention, year: u16, file: &'a PathBuf) -> DrawingArea<BitMapBackend<'a>, Shift> {
+fn draw_graph_by_gender_by_event<'a>(
+    convention: &Convention,
+    year: u16,
+    file: &'a PathBuf,
+) -> DrawingArea<BitMapBackend<'a>, Shift> {
     let data = group_by_gender_by_event(convention);
 
     let root_drawing_area = create_drawing_area(&file);
+    let root_drawing_area = init_drawing_area(root_drawing_area);
 
     let events_count = convention.events().len();
 
@@ -40,7 +45,12 @@ fn draw_graph_by_gender_by_event<'a>(convention: &Convention, year: u16, file: &
 }
 
 fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
-    let drawing_area = BitMapBackend::new(file, (2048, 2048)).into_drawing_area();
+     BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
+}
+
+fn init_drawing_area<DB, CT>(mut drawing_area: DrawingArea<DB, CT>) -> DrawingArea<DB, CT>
+where DB: DrawingBackend,
+      CT: CoordTranslate{
     drawing_area.fill(&WHITE).unwrap();
     drawing_area
 }
@@ -81,13 +91,16 @@ fn create_caption(year: u16) -> String {
     format!("Répartition femmes/hommes par épreuve ({year})")
 }
 
-fn create_chart<'a, 'c>(
-    drawing_area: &DrawingArea<BitMapBackend<'a>, Shift>,
+fn create_chart<'c, DB>(
+    drawing_area: &DrawingArea<DB, Shift>,
     margin_bottom: u32,
     caption: &str,
     upper_x_bound: f32,
     upper_y_bound: i32,
-) -> ChartContext<'c, BitMapBackend<'a>, Cartesian2d<RangedCoordf32, RangedCoordi32>> {
+) -> ChartContext<'c, DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>
+where
+    DB: DrawingBackend,
+{
     let mut chart = ChartBuilder::on(drawing_area)
         .margin_bottom(margin_bottom) // FIXME: This does not make enough space for very long event names...
         .set_label_area_size(LabelAreaPosition::Left, 40)
@@ -106,11 +119,13 @@ fn create_chart<'a, 'c>(
     chart
 }
 
-fn draw_chart(
-    chart: &mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordi32>>,
+fn draw_chart<DB>(
+    chart: &mut ChartContext<DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>,
     data: &BTreeMap<&Event, HashMap<Gender, u64>>,
     events_count: usize,
-) {
+)
+where
+    DB: DrawingBackend,{
     chart
         .draw_series(
             (0..events_count)
@@ -200,10 +215,10 @@ mod tests {
     use crate::registration::test_data::get_test_convention;
 
     mod draw_and_export_graph {
-        use std::env::temp_dir;
-        use std::path::PathBuf;
         use crate::registration::test_data::get_test_convention;
         use crate::statistics::gender_repartition::draw_and_export_graph;
+        use std::env::temp_dir;
+        use std::path::PathBuf;
 
         #[test]
         fn success() {
@@ -212,14 +227,18 @@ mod tests {
             let year = 2025;
             draw_and_export_graph(&convention, year, &temp_dir);
 
-            assert!(temp_dir.join(&PathBuf::from(format!("{year}.png"))).exists());
+            assert!(
+                temp_dir
+                    .join(&PathBuf::from(format!("{year}.png")))
+                    .exists()
+            );
         }
     }
 
     mod draw_graph_by_gender_by_event {
-        use std::path::PathBuf;
         use crate::registration::test_data::get_test_convention;
         use crate::statistics::gender_repartition::draw_graph_by_gender_by_event;
+        use std::path::PathBuf;
 
         /// This test simply ensures the graph gets drawn.
         /// I have not yet found a way to ensure the graph represents what's expected...
