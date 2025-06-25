@@ -14,7 +14,7 @@ use std::path::PathBuf;
 ///
 /// Once generated, the graph is saved to a new file in given folder.
 #[allow(dead_code)]
-pub fn draw_and_export_graph(convention: &Convention, year: u16, folder: &PathBuf) {
+pub fn draw_and_export_graph(convention: &Convention, year: u16, folder: &std::path::Path) {
     let file = folder.join(PathBuf::from(format!("{year}.png")));
     let drawing_area = draw_graph_by_gender_by_event(convention, year, &file);
     drawing_area.present().unwrap();
@@ -27,7 +27,7 @@ fn draw_graph_by_gender_by_event<'a>(
 ) -> DrawingArea<BitMapBackend<'a>, Shift> {
     let data = group_by_gender_by_event(convention);
 
-    let root_drawing_area = create_drawing_area(&file);
+    let root_drawing_area = create_drawing_area(file);
     let root_drawing_area = init_drawing_area(root_drawing_area);
 
     let events_count = convention.events().len();
@@ -53,7 +53,7 @@ fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
     BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
 }
 
-fn init_drawing_area<DB, CT>(mut drawing_area: DrawingArea<DB, CT>) -> DrawingArea<DB, CT>
+fn init_drawing_area<DB, CT>(drawing_area: DrawingArea<DB, CT>) -> DrawingArea<DB, CT>
 where
     DB: DrawingBackend,
     CT: CoordTranslate,
@@ -77,7 +77,7 @@ fn compute_longest_event_name_length(convention: &Convention) -> usize {
 }
 
 fn compute_upper_y_bound(data: &BTreeMap<&Event, HashMap<Gender, u64>>) -> i32 {
-    let max_participants_count = compute_max_participants_count(&data);
+    let max_participants_count = compute_max_participants_count(data);
     (((max_participants_count + 10) / 10) * 10) as i32
 }
 
@@ -137,7 +137,7 @@ fn draw_chart<DB>(
         .draw_series(
             (0..events_count)
                 .zip(data.iter())
-                .map(|(x, (event, counts))| {
+                .flat_map(|(x, (event, counts))| {
                     let x = x as f32 * 2.0;
 
                     let (female_bar, count_female) =
@@ -153,19 +153,19 @@ fn draw_chart<DB>(
                         count_female.into_dyn(),
                         count_male.into_dyn(),
                     ]
-                })
-                .flatten(),
+                }),
         )
         .unwrap();
 }
 
+type Bar<'a> = (Rectangle<(f32, i32)>, Text<'a, (f32, i32), String>);
 fn draw_bar<'a>(
     x: f32,
     count: u64,
     first_of_group: bool,
     last_of_group: bool,
     color: RGBColor,
-) -> (Rectangle<(f32, i32)>, Text<'a, (f32, i32), String>) {
+) -> Bar<'a> {
     let x0 = x;
     let x1 = x + 1.0;
     let count = count as i32;
@@ -236,7 +236,7 @@ mod tests {
 
             assert!(
                 temp_dir
-                    .join(&PathBuf::from(format!("{year}.png")))
+                    .join(PathBuf::from(format!("{year}.png")))
                     .exists()
             );
         }
