@@ -41,7 +41,7 @@ const EVENT_REGISTRATION_STRING: &str = "VRAI";
 
 /// Create a [Registrant] and its list of registered events from a spreadsheet row.
 pub fn parse_row(row: &[Data]) -> Result<(Registrant, Vec<usize>)> {
-    let id = extract_id(row.get(0).ok_or(MisformattedRow)?)?;
+    let id = extract_id(row.first().ok_or(MisformattedRow)?)?;
     let first_name = extract_first_name(row.get(1).ok_or(MisformattedRow)?)?;
     let last_name = extract_last_name(row.get(2).ok_or(MisformattedRow)?)?;
     let birthday = extract_birthday(row.get(3).ok_or(MisformattedRow)?)?;
@@ -55,7 +55,7 @@ pub fn parse_row(row: &[Data]) -> Result<(Registrant, Vec<usize>)> {
         birthday,
         age,
         gender,
-        club.map(|club| club.clone()),
+        club.cloned(),
     );
 
     let registered_events = row.iter().skip(7).enumerate()
@@ -306,7 +306,7 @@ mod tests {
                 Data::String(first_name.to_string()),
                 Data::String(last_name.to_string()),
                 Data::String(birthday.to_string()),
-                Data::Float(age as f64),
+                Data::Float(age),
                 Data::String(gender.to_string()),
                 Data::String(club.to_string()),
                 Data::String("VRAI".to_string()),
@@ -517,7 +517,7 @@ mod tests {
             expected_club = {Some("This is a club".to_string()), None}
         )]
         fn success(club_cell: &Data, expected_club: Option<String>) {
-            let result = extract_club(club_cell).unwrap().map(|club| club.clone());
+            let result = extract_club(club_cell).unwrap().cloned();
             assert_eq!(expected_club, result);
         }
 
