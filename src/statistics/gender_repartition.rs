@@ -9,10 +9,15 @@ use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
 #[allow(dead_code)]
-fn draw_graph_by_gender_by_event(convention: &Convention, year: u16) {
+fn draw_and_export_graph(convention: &Convention, year: u16, folder: &PathBuf) {
+    let file = folder.join(PathBuf::from(format!("{year}.png")));
+    let drawing_area = draw_graph_by_gender_by_event(convention, year, &file);
+    drawing_area.present().unwrap();
+}
+
+fn draw_graph_by_gender_by_event<'a>(convention: &Convention, year: u16, file: &'a PathBuf) -> DrawingArea<BitMapBackend<'a>, Shift> {
     let data = group_by_gender_by_event(convention);
 
-    let file = PathBuf::from(format!("{year}.png"));
     let root_drawing_area = create_drawing_area(&file);
 
     let events_count = convention.events().len();
@@ -31,7 +36,7 @@ fn draw_graph_by_gender_by_event(convention: &Convention, year: u16) {
     );
     draw_chart(&mut chart, &data, events_count);
 
-    root_drawing_area.present().unwrap();
+    root_drawing_area
 }
 
 fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
@@ -101,8 +106,11 @@ fn create_chart<'a, 'c>(
     chart
 }
 
-
-fn draw_chart(chart: &mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordi32>>, data: &BTreeMap<&Event, HashMap<Gender, u64>>, events_count: usize) {
+fn draw_chart(
+    chart: &mut ChartContext<BitMapBackend, Cartesian2d<RangedCoordf32, RangedCoordi32>>,
+    data: &BTreeMap<&Event, HashMap<Gender, u64>>,
+    events_count: usize,
+) {
     chart
         .draw_series(
             (0..events_count)
@@ -189,13 +197,177 @@ fn group_by_gender_by_event(convention: &Convention) -> BTreeMap<&Event, HashMap
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::registration::convention::load_convention;
     use crate::registration::test_data::get_test_convention;
-    use std::path::PathBuf;
 
-    #[test]
-    fn test() {
-        let convention = get_test_convention();
-        draw_graph_by_gender_by_event(&convention, 2000);
+    mod draw_and_export_graph {
+        use std::env::temp_dir;
+        use std::path::PathBuf;
+        use crate::registration::test_data::get_test_convention;
+        use crate::statistics::gender_repartition::draw_and_export_graph;
+
+        #[test]
+        fn success() {
+            let temp_dir = temp_dir();
+            let convention = get_test_convention();
+            let year = 2025;
+            draw_and_export_graph(&convention, year, &temp_dir);
+
+            assert!(temp_dir.join(&PathBuf::from(format!("{year}.png"))).exists());
+        }
+    }
+
+    mod draw_graph_by_gender_by_event {
+        use std::path::PathBuf;
+        use crate::registration::test_data::get_test_convention;
+        use crate::statistics::gender_repartition::draw_graph_by_gender_by_event;
+
+        /// This test simply ensures the graph gets drawn.
+        /// I have not yet found a way to ensure the graph represents what's expected...
+        #[test]
+        fn success() {
+            let convention = get_test_convention();
+            let year = 2025;
+            let file = PathBuf::from(format!("{year}.png"));
+            draw_graph_by_gender_by_event(&convention, year, &file);
+        }
+    }
+
+    mod group_by_gender_by_event {
+        use super::*;
+
+        #[test]
+        fn success() {
+            let convention = get_test_convention();
+            let expected_data: BTreeMap<Event, HashMap<Gender, u64>> = [
+                (
+                    Event::new(15, "10 kilomètres - Illimité".to_string()),
+                    [(Female, 2), (Male, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(14, "10 kilomètres - Standard 24\"".to_string()),
+                    [(Male, 3), (Female, 7)].into_iter().collect(),
+                ),
+                (
+                    Event::new(4, "100m - All".to_string()),
+                    [(Female, 6), (Male, 4)].into_iter().collect(),
+                ),
+                (
+                    Event::new(29, "250 mètres - All".to_string()),
+                    [(Female, 6), (Male, 5)].into_iter().collect(),
+                ),
+                (
+                    Event::new(7, "30m marcher sur la roue - All".to_string()),
+                    [(Female, 4), (Male, 4)].into_iter().collect(),
+                ),
+                (
+                    Event::new(5, "400m - All".to_string()),
+                    [(Male, 1), (Female, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(27, "50 mètres - All".to_string()),
+                    [(Male, 2), (Female, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(6, "50m un pied - All".to_string()),
+                    [(Female, 7), (Male, 5)].into_iter().collect(),
+                ),
+                (
+                    Event::new(22, "Basket - All".to_string()),
+                    [(Male, 3), (Female, 8)].into_iter().collect(),
+                ),
+                (
+                    Event::new(18, "Cross court - All".to_string()),
+                    [(Male, 4), (Female, 7)].into_iter().collect(),
+                ),
+                (
+                    Event::new(28, "Cross long - All".to_string()),
+                    [(Male, 4), (Female, 8)].into_iter().collect(),
+                ),
+                (
+                    Event::new(21, "Flat - All".to_string()),
+                    [(Female, 7), (Male, 4)].into_iter().collect(),
+                ),
+                (
+                    Event::new(26, "Groupe - All".to_string()),
+                    [(Female, 5), (Male, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(23, "Hockey - All".to_string()),
+                    [(Male, 5), (Female, 7)].into_iter().collect(),
+                ),
+                (
+                    Event::new(24, "Individuel - All".to_string()),
+                    [(Female, 2), (Male, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(10, "Lenteur arrière - All".to_string()),
+                    [(Female, 5), (Male, 1)].into_iter().collect(),
+                ),
+                (
+                    Event::new(0, "Lenteur avant (planche large) - All".to_string()),
+                    [(Male, 4), (Female, 11)].into_iter().collect(),
+                ),
+                (
+                    Event::new(9, "Lenteur avant - All".to_string()),
+                    [(Female, 6), (Male, 5)].into_iter().collect(),
+                ),
+                (
+                    Event::new(17, "Marathon (42,195 km) - Illimité".to_string()),
+                    [(Male, 5), (Female, 6)].into_iter().collect(),
+                ),
+                (
+                    Event::new(16, "Marathon (42,195 km) - Standard 29\"".to_string()),
+                    [(Male, 3), (Female, 4)].into_iter().collect(),
+                ),
+                (
+                    Event::new(25, "Paire - All".to_string()),
+                    [(Male, 6), (Female, 8)].into_iter().collect(),
+                ),
+                (
+                    Event::new(1, "Parcours IUF - All".to_string()),
+                    [(Female, 6), (Male, 6)].into_iter().collect(),
+                ),
+                (
+                    Event::new(8, "Parcours IUF - All".to_string()),
+                    [(Male, 12), (Female, 16)].into_iter().collect(),
+                ),
+                (
+                    Event::new(2, "Parcours d'initiation sport-co - All".to_string()),
+                    [(Male, 5), (Female, 6)].into_iter().collect(),
+                ),
+                (
+                    Event::new(3, "Parcours d'obstacles - All".to_string()),
+                    [(Male, 2), (Female, 4)].into_iter().collect(),
+                ),
+                (
+                    Event::new(13, "Relais 4 x 100m - All".to_string()),
+                    [(Male, 3), (Female, 7)].into_iter().collect(),
+                ),
+                (
+                    Event::new(11, "Saut en hauteur - All".to_string()),
+                    [(Male, 2), (Female, 10)].into_iter().collect(),
+                ),
+                (
+                    Event::new(12, "Saut en longueur - All".to_string()),
+                    [(Female, 6), (Male, 1)].into_iter().collect(),
+                ),
+                (
+                    Event::new(20, "Street - All".to_string()),
+                    [(Male, 3), (Female, 3)].into_iter().collect(),
+                ),
+                (
+                    Event::new(19, "Trial - All".to_string()),
+                    [(Female, 3), (Male, 3)].into_iter().collect(),
+                ),
+            ]
+            .into_iter()
+            .collect();
+
+            let data: BTreeMap<Event, HashMap<Gender, u64>> = group_by_gender_by_event(&convention)
+                .into_iter()
+                .map(|(event, data)| ((*event).clone(), data))
+                .collect();
+            assert_eq!(expected_data, data)
+        }
     }
 }

@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use derive_getters::Getters;
 
-#[derive(Debug, Getters, PartialOrd, PartialEq, Eq, Hash)]
+#[derive(Debug, Getters, PartialOrd, PartialEq, Eq, Hash, Clone)]
 pub struct Event {
     /// The index refers to the column's index, starting from the first event
     index: usize,
