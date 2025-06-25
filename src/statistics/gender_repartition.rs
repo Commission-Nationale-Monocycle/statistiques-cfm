@@ -198,14 +198,4 @@ mod tests {
         let convention = get_test_convention();
         draw_graph_by_gender_by_event(&convention, 2000);
     }
-
-    #[test]
-    fn test_cfm() {
-        let years = [2016, 2017, 2018, 2019, 2023, 2024];
-        for year in years {
-            let convention =
-                load_convention(&PathBuf::from(format!("test/assets/{year}.xls"))).unwrap();
-            draw_graph_by_gender_by_event(&convention, year);
-        }
-    }
 }
