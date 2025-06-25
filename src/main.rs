@@ -1,5 +1,6 @@
 mod registration;
 mod error;
+mod statistics;
 
 use dioxus::prelude::*;
 
