@@ -1,5 +1,5 @@
 use crate::error::ApplicationError::MisformattedRow;
-use crate::error::Result;
+use crate::error::{ApplicationError, Result};
 use crate::registration::gender::Gender;
 use calamine::Data;
 use derive_getters::Getters;
@@ -53,11 +53,15 @@ pub fn parse_row(row: &[Data]) -> Result<(Registrant, Vec<usize>)> {
             registered_events @ ..,
         ] => {
             let registrant = Registrant::new(
-                *id as u16,
+                (*id as u64).try_into().map_err(|_| {
+                    ApplicationError::WrongFormat(format!("ID is too large (`{id}`)"))
+                })?,
                 first_name.to_string(),
                 last_name.to_string(),
                 birthday.to_string(),
-                *age as u8,
+                (*age as u64).try_into().map_err(|_| {
+                    ApplicationError::WrongFormat(format!("Age is too large (`{age}`)"))
+                })?,
                 gender.try_into()?,
                 club.to_string(),
             );
@@ -211,8 +215,64 @@ mod tests {
 
         #[test]
         #[should_panic(expected = "MisformattedRow")]
-        fn fail_wrong_format() {
+        fn fail_misformatted_row() {
             let row = vec![Data::String("id".to_string())];
+            parse_row(&row).unwrap();
+        }
+
+        #[test]
+        #[should_panic(expected = "WrongFormat")]
+        fn fail_wrong_format_id() {
+            let id = f64::MAX;
+            let first_name = "John";
+            let last_name = "Doe";
+            let birthday = "2010-01-01";
+            let age = 15;
+            let gender = "Male";
+            let club = "This is a club";
+
+            let row = vec![
+                Data::Float(id),
+                Data::String(first_name.to_string()),
+                Data::String(last_name.to_string()),
+                Data::String(birthday.to_string()),
+                Data::Float(age as f64),
+                Data::String(gender.to_string()),
+                Data::String(club.to_string()),
+                Data::String("VRAI".to_string()),
+                Data::String("".to_string()),
+                Data::String("".to_string()),
+                Data::String("VRAI".to_string()),
+            ];
+
+            parse_row(&row).unwrap();
+        }
+
+        #[test]
+        #[should_panic(expected = "WrongFormat")]
+        fn fail_wrong_format_age() {
+            let id = 1_f64;
+            let first_name = "John";
+            let last_name = "Doe";
+            let birthday = "2010-01-01";
+            let age = f64::MAX;
+            let gender = "Male";
+            let club = "This is a club";
+
+            let row = vec![
+                Data::Float(id),
+                Data::String(first_name.to_string()),
+                Data::String(last_name.to_string()),
+                Data::String(birthday.to_string()),
+                Data::Float(age as f64),
+                Data::String(gender.to_string()),
+                Data::String(club.to_string()),
+                Data::String("VRAI".to_string()),
+                Data::String("".to_string()),
+                Data::String("".to_string()),
+                Data::String("VRAI".to_string()),
+            ];
+
             parse_row(&row).unwrap();
         }
     }
