@@ -15,7 +15,13 @@ fn draw_graph_by_gender_by_event(convention: &Convention, year: u16) {
     let events_count = convention.events().len();
     let max_participants_count = data
         .iter()
-        .map(|(_, participants)| participants.iter().map(|(_, count)| *count).max().unwrap_or(10))
+        .map(|(_, participants)| {
+            participants
+                .iter()
+                .map(|(_, count)| *count)
+                .max()
+                .unwrap_or(10)
+        })
         .max()
         .unwrap_or(10);
 
@@ -25,7 +31,10 @@ fn draw_graph_by_gender_by_event(convention: &Convention, year: u16) {
         .margin_bottom(300)
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Right, 40)
-        .caption(format!("Répartition femmes/hommes par épreuve ({year})"), ("sans-serif", 40))
+        .caption(
+            format!("Répartition femmes/hommes par épreuve ({year})"),
+            ("sans-serif", 40),
+        )
         .build_cartesian_2d(0.0..events_count as f32 * 2.0, 0..upper_y_bound)
         .unwrap();
 
@@ -36,37 +45,26 @@ fn draw_graph_by_gender_by_event(convention: &Convention, year: u16) {
         .draw()
         .unwrap();
     chart
-        .draw_series((0..events_count).zip(data.iter()).map(|(x, (event, counts))| {
-            let x = x as f32;
+        .draw_series(
+            (0..events_count)
+                .zip(data.iter())
+                .map(|(x, (event, counts))| {
+                    let x = x as f32;
 
-            let x0 = x * 2.0;
-            let x1 = x * 2.0 + 1.0;
-            let females_count = *counts.get(&Female).unwrap_or(&0) as i32;
-            let mut female_bar = Rectangle::new(
-                [(x0, 0), (x1, females_count)],
-                MAGENTA.filled(),
-            );
-            female_bar.set_margin(0, 0, 5, 1);
+                    let (female_bar, count_female) = draw_females(x, *counts.get(&Female).unwrap_or(&0));
+                    let (male_bar, count_male) = draw_males(x, *counts.get(&Male).unwrap_or(&0));
+                    let label = draw_label(x, event.name().as_str());
 
-            let x0 = x * 2.0 + 1.0;
-            let x1 = x * 2.0 + 2.0;
-            let males_count = *counts.get(&Male).unwrap_or(&0) as i32;
-            let mut male_bar = Rectangle::new(
-                [(x0, 0), (x1, males_count)],
-                BLUE.filled(),
-            );
-            male_bar.set_margin(0, 0, 1, 5);
-
-            let font_desc = FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal).transform(Rotate90);
-            let label = Text::new(format!("  {}", event.name().to_string()), (x * 2.0 + 1.25, -1), font_desc.clone());
-
-            let font_desc = FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal).transform(Rotate270);
-            let count_female = Text::new((females_count).to_string(), (x * 2.0 + 0.25, females_count + 1), font_desc.clone());
-            let count_male = Text::new((males_count).to_string(), (x * 2.0 + 1.25, males_count + 1), font_desc.clone());
-
-            vec![female_bar.into_dyn(), male_bar.into_dyn(), label.into_dyn(), count_female.into_dyn(), count_male.into_dyn()]
-        })
-            .flatten())
+                    vec![
+                        female_bar.into_dyn(),
+                        male_bar.into_dyn(),
+                        label.into_dyn(),
+                        count_female.into_dyn(),
+                        count_male.into_dyn(),
+                    ]
+                })
+                .flatten(),
+        )
         .unwrap();
 
     root_drawing_area.present().unwrap();
@@ -97,24 +95,73 @@ fn group_by_gender_by_event(convention: &Convention) -> BTreeMap<&Event, HashMap
         .collect()
 }
 
+fn draw_females<'a>(x: f32, count: u64) -> (Rectangle<(f32, i32)>, Text<'a, (f32, i32), String>)
+{
+    let x0 = x * 2.0;
+    let x1 = x * 2.0 + 1.0;
+    let females_count = count as i32;
+    let mut female_bar = Rectangle::new([(x0, 0), (x1, females_count)], MAGENTA.filled());
+    female_bar.set_margin(0, 0, 5, 1);
+
+    let font_desc =
+        FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal).transform(Rotate270);
+    let count_female = Text::new(
+        females_count.to_string(),
+        (x * 2.0 + 0.25, females_count + 1),
+        font_desc.clone(),
+    );
+
+    (female_bar, count_female)
+}
+
+fn draw_males<'a>(x: f32, count: u64) -> (Rectangle<(f32, i32)>, Text<'a, (f32, i32), String>)
+{
+    let x0 = x * 2.0 + 1.0;
+    let x1 = x * 2.0 + 2.0;
+    let males_count = count as i32;
+    let mut male_bar = Rectangle::new([(x0, 0), (x1, males_count)], BLUE.filled());
+    male_bar.set_margin(0, 0, 1, 5);
+
+    let font_desc =
+        FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal).transform(Rotate270);
+    let count_male = Text::new(
+        males_count.to_string(),
+        (x * 2.0 + 1.25, males_count + 1),
+        font_desc.clone(),
+    );
+
+    (male_bar, count_male)
+}
+
+fn draw_label<'a>(x: f32, event_name: &str) -> Text<'a, (f32, i32), String> {
+    let font_desc = FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal)
+        .transform(Rotate90);
+    Text::new(
+        format!("  {}", event_name),
+        (x * 2.0 + 1.25, -1),
+        font_desc.clone(),
+    )
+}
+
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-    use crate::registration::convention::load_convention;
     use super::*;
+    use crate::registration::convention::load_convention;
     use crate::registration::test_data::get_test_convention;
+    use std::path::PathBuf;
 
     #[test]
     fn test() {
         let convention = get_test_convention();
         draw_graph_by_gender_by_event(&convention, 2000);
     }
-    
+
     #[test]
     fn test_cfm() {
         let years = [2016, 2017, 2018, 2019, 2023, 2024];
         for year in years {
-            let convention = load_convention(&PathBuf::from(format!("test/assets/{year}.xls"))).unwrap();
+            let convention =
+                load_convention(&PathBuf::from(format!("test/assets/{year}.xls"))).unwrap();
             draw_graph_by_gender_by_event(&convention, year);
         }
     }
