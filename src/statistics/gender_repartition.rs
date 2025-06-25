@@ -8,8 +8,13 @@ use plotters::prelude::{FontTransform::*, *};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 
+/// Draw a histogram based on the convention's data.
+/// The histogram represents for each event of the convention
+/// the repartition of participants between males and females.
+///
+/// Once generated, the graph is saved to a new file in given folder.
 #[allow(dead_code)]
-fn draw_and_export_graph(convention: &Convention, year: u16, folder: &PathBuf) {
+pub fn draw_and_export_graph(convention: &Convention, year: u16, folder: &PathBuf) {
     let file = folder.join(PathBuf::from(format!("{year}.png")));
     let drawing_area = draw_graph_by_gender_by_event(convention, year, &file);
     drawing_area.present().unwrap();
@@ -32,7 +37,7 @@ fn draw_graph_by_gender_by_event<'a>(
 
     let caption = create_caption(year);
 
-    let mut chart = create_chart(
+    let mut chart = create_chart_context(
         &root_drawing_area,
         margin_bottom,
         &caption,
@@ -45,12 +50,14 @@ fn draw_graph_by_gender_by_event<'a>(
 }
 
 fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
-     BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
+    BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
 }
 
 fn init_drawing_area<DB, CT>(mut drawing_area: DrawingArea<DB, CT>) -> DrawingArea<DB, CT>
-where DB: DrawingBackend,
-      CT: CoordTranslate{
+where
+    DB: DrawingBackend,
+    CT: CoordTranslate,
+{
     drawing_area.fill(&WHITE).unwrap();
     drawing_area
 }
@@ -91,7 +98,7 @@ fn create_caption(year: u16) -> String {
     format!("Répartition femmes/hommes par épreuve ({year})")
 }
 
-fn create_chart<'c, DB>(
+fn create_chart_context<'c, DB>(
     drawing_area: &DrawingArea<DB, Shift>,
     margin_bottom: u32,
     caption: &str,
@@ -123,9 +130,9 @@ fn draw_chart<DB>(
     chart: &mut ChartContext<DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>,
     data: &BTreeMap<&Event, HashMap<Gender, u64>>,
     events_count: usize,
-)
-where
-    DB: DrawingBackend,{
+) where
+    DB: DrawingBackend,
+{
     chart
         .draw_series(
             (0..events_count)
