@@ -64,7 +64,7 @@ where
 
 fn compute_margin_bottom(convention: &Convention) -> u32 {
     let longest_event_name_length = compute_longest_event_name_length(convention);
-    (longest_event_name_length as i32).ilog2() * 50
+    (longest_event_name_length as i32).ilog2() * 50 // FIXME: This does not make enough space for very long event names...
 }
 
 fn compute_longest_event_name_length(convention: &Convention) -> usize {
@@ -109,7 +109,7 @@ where
     DB: DrawingBackend,
 {
     let mut chart = ChartBuilder::on(drawing_area)
-        .margin_bottom(margin_bottom) // FIXME: This does not make enough space for very long event names...
+        .margin_bottom(margin_bottom)
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Right, 40)
         .caption(caption, ("sans-serif", 40))
