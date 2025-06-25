@@ -1,3 +1,4 @@
+use crate::statistics::error::DrawingError;
 use thiserror::Error;
 
 pub type Result<T, E = ApplicationError> = std::result::Result<T, E>;
@@ -14,4 +15,6 @@ pub enum ApplicationError {
     MisformattedRow,
     #[error("A cell has a wrong format: {0}")]
     WrongFormat(String),
+    #[error(transparent)]
+    Drawing(#[from] DrawingError),
 }

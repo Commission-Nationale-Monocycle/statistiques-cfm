@@ -1,7 +1,9 @@
+use super::error::Result;
 use crate::registration::convention::Convention;
 use crate::registration::event::Event;
 use crate::registration::gender::Gender;
 use crate::registration::gender::Gender::{Female, Male};
+use crate::statistics::error::DrawingError;
 use plotters::coord::types::{RangedCoordf32, RangedCoordi32};
 use plotters::coord::Shift;
 use plotters::prelude::{FontTransform::*, *};
@@ -14,21 +16,29 @@ use std::path::PathBuf;
 ///
 /// Once generated, the graph is saved to a new file in given folder.
 #[allow(dead_code)]
-pub fn draw_and_export_graph(convention: &Convention, year: u16, folder: &std::path::Path) {
+pub fn draw_and_export_graph(
+    convention: &Convention,
+    year: u16,
+    folder: &std::path::Path,
+) -> Result<()> {
     let file = folder.join(PathBuf::from(format!("{year}.png")));
-    let drawing_area = draw_graph_by_gender_by_event(convention, year, &file);
-    drawing_area.present().unwrap();
+    let drawing_area = draw_graph_by_gender_by_event(convention, year, &file)?;
+    drawing_area
+        .present()
+        .map_err(|e| DrawingError::Presentation(e.to_string()))?;
+
+    Ok(())
 }
 
 fn draw_graph_by_gender_by_event<'a>(
     convention: &Convention,
     year: u16,
     file: &'a PathBuf,
-) -> DrawingArea<BitMapBackend<'a>, Shift> {
+) -> Result<DrawingArea<BitMapBackend<'a>, Shift>> {
     let data = group_by_gender_by_event(convention);
 
     let root_drawing_area = create_drawing_area(file);
-    let root_drawing_area = init_drawing_area(root_drawing_area);
+    let root_drawing_area = init_drawing_area(root_drawing_area)?;
 
     let events_count = convention.events().len();
 
@@ -43,23 +53,25 @@ fn draw_graph_by_gender_by_event<'a>(
         &caption,
         events_count as f32 * 2.0,
         upper_y_bound,
-    );
-    draw_chart(&mut chart, &data, events_count);
+    )?;
+    draw_chart(&mut chart, &data, events_count)?;
 
-    root_drawing_area
+    Ok(root_drawing_area)
 }
 
 fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
     BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
 }
 
-fn init_drawing_area<DB, CT>(drawing_area: DrawingArea<DB, CT>) -> DrawingArea<DB, CT>
+fn init_drawing_area<DB, CT>(drawing_area: DrawingArea<DB, CT>) -> Result<DrawingArea<DB, CT>>
 where
     DB: DrawingBackend,
     CT: CoordTranslate,
 {
-    drawing_area.fill(&WHITE).unwrap();
     drawing_area
+        .fill(&WHITE)
+        .map_err(|e| DrawingError::DrawingArea(e.to_string()))?;
+    Ok(drawing_area)
 }
 
 fn compute_margin_bottom(convention: &Convention) -> u32 {
@@ -104,7 +116,7 @@ fn create_chart_context<'c, DB>(
     caption: &str,
     upper_x_bound: f32,
     upper_y_bound: i32,
-) -> ChartContext<'c, DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>
+) -> Result<ChartContext<'c, DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>>
 where
     DB: DrawingBackend,
 {
@@ -114,23 +126,24 @@ where
         .set_label_area_size(LabelAreaPosition::Right, 40)
         .caption(caption, ("sans-serif", 40))
         .build_cartesian_2d(0.0..upper_x_bound, 0..upper_y_bound)
-        .unwrap();
+        .map_err(|e| DrawingError::ChartContext(e.to_string()))?;
 
     chart
         .configure_mesh()
         .disable_x_axis()
         .disable_x_mesh()
         .draw()
-        .unwrap();
+        .map_err(|e| DrawingError::ChartContext(e.to_string()))?;
 
-    chart
+    Ok(chart)
 }
 
 fn draw_chart<DB>(
     chart: &mut ChartContext<DB, Cartesian2d<RangedCoordf32, RangedCoordi32>>,
     data: &BTreeMap<&Event, HashMap<Gender, u64>>,
     events_count: usize,
-) where
+) -> Result<()>
+where
     DB: DrawingBackend,
 {
     chart
@@ -155,7 +168,9 @@ fn draw_chart<DB>(
                     ]
                 }),
         )
-        .unwrap();
+        .map_err(|e| DrawingError::ChartDrawing(e.to_string()))?;
+
+    Ok(())
 }
 
 type Bar<'a> = (Rectangle<(f32, i32)>, Text<'a, (f32, i32), String>);
@@ -232,13 +247,9 @@ mod tests {
             let temp_dir = temp_dir();
             let convention = get_test_convention();
             let year = 2025;
-            draw_and_export_graph(&convention, year, &temp_dir);
+            draw_and_export_graph(&convention, year, &temp_dir).unwrap();
 
-            assert!(
-                temp_dir
-                    .join(PathBuf::from(format!("{year}.png")))
-                    .exists()
-            );
+            assert!(temp_dir.join(PathBuf::from(format!("{year}.png"))).exists());
         }
     }
 
@@ -254,7 +265,7 @@ mod tests {
             let convention = get_test_convention();
             let year = 2025;
             let file = PathBuf::from(format!("{year}.png"));
-            draw_graph_by_gender_by_event(&convention, year, &file);
+            draw_graph_by_gender_by_event(&convention, year, &file).unwrap();
         }
     }
 
