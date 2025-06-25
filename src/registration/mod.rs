@@ -1,7 +1,7 @@
-mod convention;
-mod event;
-mod gender;
-mod registrant;
+pub mod convention;
+pub mod event;
+pub mod gender;
+pub mod registrant;
 
 #[cfg(test)]
-mod test_data;
+pub mod test_data;

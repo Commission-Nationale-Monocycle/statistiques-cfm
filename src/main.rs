@@ -1,4 +1,4 @@
-mod registration;
+pub mod registration;
 mod error;
 mod statistics;
 
