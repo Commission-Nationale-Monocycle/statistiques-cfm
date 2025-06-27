@@ -6,8 +6,8 @@ use crate::registration::registrant::Registrant;
 #[allow(dead_code)]
 fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<f32>> {
     let registrants: Vec<HashSet<&Registrant>> = registrants
-        .into_iter()
-        .map(|r| r.into_iter().collect())
+        .iter()
+        .map(|r| r.iter().collect())
         .collect();
     
     registrants
