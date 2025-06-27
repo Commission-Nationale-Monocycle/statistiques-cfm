@@ -234,10 +234,10 @@ fn group_by_gender_by_event(convention: &Convention) -> BTreeMap<&Event, HashMap
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::registration::test_data::get_test_convention;
+    use crate::test_data::get_test_convention;
 
     mod draw_and_export_graph {
-        use crate::registration::test_data::get_test_convention;
+        use crate::test_data::get_test_convention;
         use crate::statistics::gender_repartition::draw_and_export_graph;
         use std::env::temp_dir;
         use std::path::PathBuf;
@@ -254,7 +254,7 @@ mod tests {
     }
 
     mod draw_graph_by_gender_by_event {
-        use crate::registration::test_data::get_test_convention;
+        use crate::test_data::get_test_convention;
         use crate::statistics::gender_repartition::draw_graph_by_gender_by_event;
         use std::path::PathBuf;
 

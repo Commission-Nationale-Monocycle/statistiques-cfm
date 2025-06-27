@@ -1,0 +1,9 @@
+athletisme:
+    100m:
+      - 100m - All
+    stillstand: []
+
+tout-terrain:
+  cross-country:
+    - Cross court - All
+    - Cross long - All

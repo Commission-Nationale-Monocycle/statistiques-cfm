@@ -107,14 +107,13 @@ pub fn retrieve_event_list(headers: Option<Vec<String>>) -> error::Result<Vec<Ev
 mod tests {
     mod load_convention {
         use super::super::load_convention;
-        use crate::registration::test_data;
-        use test_data::*;
+        use crate::test_data::*;
 
         #[test]
         fn success() {
             let expected_convention = get_test_convention();
 
-            let path = get_test_asset("registrations.xls");
+            let path = get_test_asset("registration/registrations.xls");
             let convention = load_convention(&path).unwrap();
 
             assert_eq!(expected_convention, convention);
@@ -123,14 +122,14 @@ mod tests {
         #[test]
         #[should_panic(expected = "NotFound")]
         fn fail_on_file_not_found() {
-            let path = get_test_asset("not_found.xls");
+            let path = get_test_asset("registration/not_found.xls");
             load_convention(&path).unwrap();
         }
 
         #[test]
         #[should_panic(expected = "WorksheetNotFound")]
         fn fail_on_sheet_not_found() {
-            let path = get_test_asset("wrong_sheet_name.xls");
+            let path = get_test_asset("registration/wrong_sheet_name.xls");
             load_convention(&path).unwrap();
         }
     }

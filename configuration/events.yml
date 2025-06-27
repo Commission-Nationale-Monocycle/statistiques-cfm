@@ -1,0 +1,58 @@
+categories:
+  athletisme:
+      name: Athlétisme
+      events:
+        100m: 100m
+        400m: 400m
+        4x100m: Relais 4 x 100m
+        30m-marcher-sur-la-roue: 30m - Marcher sur la roue
+        50m-un-pied: 50m - Un pied
+        saut-en-longueur: Saut en longueur
+        saut-en-hauteur: Saut en hauteur
+        stillstand: Stillstand
+        lenteur-avant: Lenteur avant
+        lenteur-arriere: Lenteur arrière
+        parcours-iuf: Parcours IUF
+
+  artistique:
+    name: Artistique
+    events:
+      individuel: Individuel
+      paire: Paire
+      groupe: Groupe
+
+  challenge-poussin:
+    name: Challenge poussin
+    events:
+      challenge-poussin: Challenge poussin
+
+  courses-sur-route:
+      name: Courses sur route
+      events:
+        10km-standard: 10 km - Standard
+        10km-illimite: 10 km - Illimité
+        marathon-standard: Marathon - Standard
+        marathon-illimite: Marathon - Illimité
+        course-de-cote: Course de côte
+
+  sports-collectifs:
+      name: Sports collectifs
+      events:
+        basket: Basket
+        hockey: Hockey
+
+  tout-terrain:
+      name: Tout-terrain
+      events:
+        cross-country: Cross-country
+        descente: Descente
+        montee-impossible: Montée impossible
+        cyclo-cross: Cyclo-cross
+
+  urbain:
+      name: Urbain
+      events:
+        flat: Flat
+        street: Street
+        trial: Trial
+        speed-trial: Speed Trial
