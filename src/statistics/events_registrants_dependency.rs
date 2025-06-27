@@ -1,9 +1,15 @@
 //! Whether a couple of events shares a lot of registrants.
 
+use std::collections::HashSet;
 use crate::registration::registrant::Registrant;
 
 #[allow(dead_code)]
 fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<f32>> {
+    let registrants: Vec<HashSet<&Registrant>> = registrants
+        .into_iter()
+        .map(|r| r.into_iter().collect())
+        .collect();
+    
     registrants
         .iter()
         .map(|registrants_1| {
@@ -15,13 +21,13 @@ fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<f32>> {
         .collect()
 }
 
-fn compute_dependency(registrants_1: &[Registrant], registrants_2: &[Registrant]) -> f32 {
+fn compute_dependency(registrants_1: &HashSet<&Registrant>, registrants_2: &HashSet<&Registrant>) -> f32 {
     if registrants_1.is_empty() {
-        1_f32
+        0.0
     } else {
         registrants_1
             .iter()
-            .filter(|r| registrants_2.contains(r))
+            .filter(|r| registrants_2.contains(**r))
             .count() as f32
             / registrants_1.len() as f32
     }
@@ -83,7 +89,7 @@ mod tests {
                 vec![1.0 / 3.0, 1.0, 2.0 / 3.0, 1.0, 0.0],
                 vec![1.0 / 3.0, 2.0 / 3.0, 1.0, 1.0, 0.0],
                 vec![0.5, 0.75, 0.75, 1.0, 0.0],
-                vec![1.0, 1.0, 1.0, 1.0, 1.0],
+                vec![0.0, 0.0, 0.0, 0.0, 0.0],
             ];
 
             let (r1, r2, r3, r4) = test_registrants();
@@ -112,8 +118,8 @@ mod tests {
         fn success_50_percents() {
             let (r1, r2, r3, r4) = test_registrants();
 
-            let registrants_1 = vec![r1.clone(), r2.clone(), r3.clone(), r4.clone()];
-            let registrants_2 = vec![r1, r2];
+            let registrants_1 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
+            let registrants_2 = vec![&r1, &r2].into_iter().collect();
 
             assert_eq!(0.5_f32, compute_dependency(&registrants_1, &registrants_2));
         }
@@ -122,20 +128,20 @@ mod tests {
         fn success_100_percents() {
             let (r1, r2, r3, r4) = test_registrants();
 
-            let registrants_1 = vec![r1.clone(), r2.clone()];
-            let registrants_2 = vec![r1, r2, r3, r4];
+            let registrants_1 = vec![&r1, &r2].into_iter().collect();
+            let registrants_2 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
 
-            assert_eq!(1_f32, compute_dependency(&registrants_1, &registrants_2));
+            assert_eq!(1.0, compute_dependency(&registrants_1, &registrants_2));
         }
 
         #[test]
         fn success_no_registrants() {
             let (r1, r2, r3, r4) = test_registrants();
 
-            let registrants_1 = vec![];
-            let registrants_2 = vec![r1, r2, r3, r4];
+            let registrants_1 = vec![].into_iter().collect();
+            let registrants_2 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
 
-            assert_eq!(1_f32, compute_dependency(&registrants_1, &registrants_2));
+            assert_eq!(0.0, compute_dependency(&registrants_1, &registrants_2));
         }
     }
 }
