@@ -94,14 +94,13 @@ fn compute_upper_y_bound(data: &BTreeMap<&Event, HashMap<Gender, u64>>) -> i32 {
 }
 
 fn compute_max_participants_count(data: &BTreeMap<&Event, HashMap<Gender, u64>>) -> u64 {
-    data.iter()
-        .map(|(_, participants)| {
-            participants
-                .iter()
-                .map(|(_, count)| *count)
-                .max()
-                .unwrap_or(10)
-        })
+    data
+        .values()
+        .map(|participants| participants
+            .values()
+            .map(|(count)| *count)
+            .max()
+            .unwrap_or(10))
         .max()
         .unwrap_or(10)
 }
@@ -200,7 +199,7 @@ fn draw_label<'a>(x: f32, event_name: &str, number_of_bars: usize) -> Text<'a, (
     let font_desc =
         FontDesc::new(FontFamily::SansSerif, 16_f64, FontStyle::Normal).transform(Rotate90);
     Text::new(
-        format!("  {}", event_name),
+        format!("  {event_name}"),
         (x + 0.25 + (number_of_bars as f32 / 2.0), -1),
         font_desc.clone(),
     )
