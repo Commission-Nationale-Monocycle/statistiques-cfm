@@ -74,7 +74,7 @@ mod tests {
 
     mod compute_dependencies {
         use super::test_registrants;
-        use crate::statistics::events_registrannts_dependency::compute_dependencies;
+        use crate::statistics::events_registrants_dependency::compute_dependencies;
 
         #[test]
         fn success() {
