@@ -98,7 +98,7 @@ fn compute_max_participants_count(data: &BTreeMap<&Event, HashMap<Gender, u64>>)
         .values()
         .map(|participants| participants
             .values()
-            .map(|(count)| *count)
+            .map(|count| *count)
             .max()
             .unwrap_or(10))
         .max()
