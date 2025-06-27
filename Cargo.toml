@@ -13,6 +13,7 @@ calamine = "0.28.0"
 derive-getters = "0.5.0"
 thiserror = "2.0.12"
 plotters = "0.3.7"
+config = "0.15.11"
 
 [dev-dependencies]
 parameterized = "2.0.0"

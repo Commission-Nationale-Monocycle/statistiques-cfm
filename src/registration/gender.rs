@@ -17,8 +17,7 @@ impl TryFrom<&String> for Gender {
             "Male" => Ok(Male),
             "Female" => Ok(Female),
             _ => Err(WrongFormat(format!(
-                "Gender should be `Male` or `Female`. Got `{}` instead.",
-                value
+                "Gender should be `Male` or `Female`. Got `{value}` instead.",
             ))),
         }
     }
@@ -27,8 +26,8 @@ impl TryFrom<&String> for Gender {
 #[cfg(test)]
 mod tests {
     mod try_from_and_string {
-        use parameterized::parameterized;
         use crate::registration::gender::Gender;
+        use parameterized::parameterized;
 
         #[test]
         #[ignore]
@@ -41,7 +40,10 @@ mod tests {
             expected_gender = { Gender::Female, Gender::Male }
         )]
         fn success(gender_string: &str, expected_gender: Gender) {
-            assert_eq!(expected_gender, Gender::try_from(&String::from(gender_string)).unwrap());
+            assert_eq!(
+                expected_gender,
+                Gender::try_from(&String::from(gender_string)).unwrap()
+            );
         }
 
         #[parameterized(

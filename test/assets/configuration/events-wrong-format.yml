@@ -1,0 +1,10 @@
+athletisme:
+  name: Athlétisme
+  events:
+    100m: 100m
+
+artistique:
+  name: Artistique
+  events:
+    individuel: Individuel
+    paire: Paire
