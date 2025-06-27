@@ -4,7 +4,7 @@ use crate::registration::gender::Gender;
 use calamine::Data;
 use derive_getters::Getters;
 
-#[derive(Debug, Getters, PartialOrd, PartialEq, Clone)]
+#[derive(Debug, Getters, PartialOrd, PartialEq, Clone, Hash, Eq)]
 pub struct Registrant {
     id: u16,
     first_name: String,
