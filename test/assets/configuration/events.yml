@@ -1,8 +1,8 @@
 categories:
   athletisme:
-      name: Athlétisme
-      events:
-        100m: 100m
+    name: Athlétisme
+    events:
+      100m: 100m
 
   artistique:
     name: Artistique

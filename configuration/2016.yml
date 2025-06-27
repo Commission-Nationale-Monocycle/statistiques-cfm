@@ -1,25 +1,25 @@
 athletisme:
-    100m:
-      - 100m - All
-    400m:
-      - 400m - All
-    4x100m:
-      - Relais 4 x 100m - All
-    30m-marcher-sur-la-roue:
-      - 30m marcher sur la roue - All
-    50m-un-pied:
-      - 50m un pied - All
-    saut-en-longueur:
-      - Saut en longueur - All
-    saut-en-hauteur:
-      - Saut en hauteur - All
-    stillstand: []
-    lenteur-avant:
-      - Lenteur avant - All
-    lenteur-arriere:
-      - Lenteur arrière - All
-    parcours-iuf:
-      - Parcours IUF - All
+  100m:
+    - 100m - All
+  400m:
+    - 400m - All
+  4x100m:
+    - Relais 4 x 100m - All
+  30m-marcher-sur-la-roue:
+    - 30m marcher sur la roue - All
+  50m-un-pied:
+    - 50m un pied - All
+  saut-en-longueur:
+    - Saut en longueur - All
+  saut-en-hauteur:
+    - Saut en hauteur - All
+  stillstand: [ ]
+  lenteur-avant:
+    - Lenteur avant - All
+  lenteur-arriere:
+    - Lenteur arrière - All
+  parcours-iuf:
+    - Parcours IUF - All
 
 artistique:
   individuel:
