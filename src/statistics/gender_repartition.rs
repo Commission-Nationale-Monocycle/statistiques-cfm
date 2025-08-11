@@ -59,7 +59,7 @@ fn draw_graph_by_gender_by_event<'a>(
     Ok(root_drawing_area)
 }
 
-fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend, Shift> {
+fn create_drawing_area(file: &PathBuf) -> DrawingArea<BitMapBackend<'_>, Shift> {
     BitMapBackend::new(file, (2048, 2048)).into_drawing_area()
 }
 
