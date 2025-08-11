@@ -18,13 +18,14 @@ impl EventsConfiguration {
 #[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct EventsCategory {
     name: String,
+    can_regroup: bool,
     events: HashMap<String, String>,
 }
 
 #[allow(dead_code)]
 impl EventsCategory {
-    pub fn new(name: String, events: HashMap<String, String>) -> Self {
-        Self { name, events }
+    pub fn new(name: String, can_regroup: bool, events: HashMap<String, String>) -> Self {
+        Self { name, can_regroup, events }
     }
 }
 
@@ -47,8 +48,8 @@ mod test {
         #[test]
         fn success() {
             let expected_result = EventsConfiguration::new([
-                ("athletisme".to_string(), EventsCategory::new("Athlétisme".to_string(), [("100m".to_string(), "100m".to_string())].into_iter().collect())),
-                ("artistique".to_string(), EventsCategory::new("Artistique".to_string(), [("individuel".to_string(), "Individuel".to_string()), ("paire".to_string(), "Paire".to_string())].into_iter().collect())),
+                ("athletisme".to_string(), EventsCategory::new("Athlétisme".to_string(), true, [("100m".to_string(), "100m".to_string())].into_iter().collect())),
+                ("artistique".to_string(), EventsCategory::new("Artistique".to_string(), false, [("individuel".to_string(), "Individuel".to_string()), ("paire".to_string(), "Paire".to_string())].into_iter().collect())),
             ].into_iter().collect());
 
             let file = get_test_asset("configuration/events.yml");
