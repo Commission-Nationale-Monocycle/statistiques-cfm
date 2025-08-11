@@ -51,13 +51,13 @@ fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<(usize, usiz
         .map(|registrants_1| {
             registrants
                 .iter()
-                .map(|registrants_2| compute_dependency_with_numbers(registrants_1, registrants_2))
+                .map(|registrants_2| compute_dependency(registrants_1, registrants_2))
                 .collect()
         })
         .collect()
 }
 
-fn compute_dependency_with_numbers(registrants_1: &HashSet<&Registrant>, registrants_2: &HashSet<&Registrant>) -> (usize, usize) {
+fn compute_dependency(registrants_1: &HashSet<&Registrant>, registrants_2: &HashSet<&Registrant>) -> (usize, usize) {
     if registrants_1.is_empty() {
         (0, registrants_2.len())
     } else {
@@ -156,7 +156,7 @@ mod tests {
             let registrants_1 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
             let registrants_2 = vec![&r1, &r2].into_iter().collect();
 
-            assert_eq!(0.5_f32, compute_dependency(&registrants_1, &registrants_2));
+            assert_eq!((2,2), compute_dependency(&registrants_1, &registrants_2));
         }
 
         #[test]
@@ -166,7 +166,7 @@ mod tests {
             let registrants_1 = vec![&r1, &r2].into_iter().collect();
             let registrants_2 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
 
-            assert_eq!(1.0, compute_dependency(&registrants_1, &registrants_2));
+            assert_eq!((2,4), compute_dependency(&registrants_1, &registrants_2));
         }
 
         #[test]
@@ -176,7 +176,7 @@ mod tests {
             let registrants_1 = vec![].into_iter().collect();
             let registrants_2 = vec![&r1, &r2, &r3, &r4].into_iter().collect();
 
-            assert_eq!(0.0, compute_dependency(&registrants_1, &registrants_2));
+            assert_eq!((0, 4), compute_dependency(&registrants_1, &registrants_2));
         }
     }
 
