@@ -8,7 +8,7 @@ use std::path::PathBuf;
 pub fn generate_csv_file(file: &PathBuf) -> String {
     let convention = load_convention(file).unwrap();
     let registrants = convention.participants_by_event();
-    let dependencies = compute_dependencies(&registrants);
+    let dependencies = compute_dependencies(registrants);
     let dependencies: Vec<Vec<String>> = dependencies
         .iter()
         .map(|dependencies| {
@@ -40,7 +40,6 @@ pub fn generate_csv_file(file: &PathBuf) -> String {
     content
 }
 
-#[allow(dead_code)]
 fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<(usize, usize)>> {
     let registrants: Vec<HashSet<&Registrant>> = registrants
         .iter()
@@ -56,18 +55,6 @@ fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<(usize, usiz
                 .collect()
         })
         .collect()
-}
-
-fn compute_dependency(registrants_1: &HashSet<&Registrant>, registrants_2: &HashSet<&Registrant>) -> f32 {
-    if registrants_1.is_empty() {
-        0.0
-    } else {
-        registrants_1
-            .iter()
-            .filter(|r| registrants_2.contains(**r))
-            .count() as f32
-            / registrants_1.len() as f32
-    }
 }
 
 fn compute_dependency_with_numbers(registrants_1: &HashSet<&Registrant>, registrants_2: &HashSet<&Registrant>) -> (usize, usize) {
