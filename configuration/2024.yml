@@ -1,0 +1,69 @@
+athletisme:
+  100m:
+    - 100m - All
+  400m:
+    - 400m - All
+  4x100m:
+    - Relais 4 x 100m - All
+  30m-marcher-sur-la-roue:
+    - 30m marcher sur la roue - All
+  50m-un-pied:
+    - 50m un pied - All
+  saut-en-longueur:
+    - Saut en longueur - All
+  saut-en-hauteur:
+    - Saut en hauteur - All
+  stillstand: [ ]
+  lenteur-avant:
+    - Lenteur avant - All
+  lenteur-arriere:
+    - Lenteur arrière - All
+  parcours-iuf:
+    - Parcours IUF - All
+
+artistique:
+  individuel:
+    - Individuel - All
+  paire:
+    - Paire - All
+  groupe:
+    - Groupe - All
+
+challenge-poussin:
+  challenge-poussin:
+    - Challenge (gymnase, stade, route, cross) - Poussins
+
+courses-sur-route:
+  10km-standard:
+    - 10 kilomètres - Standard 24"
+  10km-illimite:
+    - 10 kilomètres - Illimité
+  marathon-standard:
+    - Marathon (42,195 km) - Standard 29"
+  marathon-illimite:
+    - Marathon (42,195 km) - Illimité
+
+sports-collectifs:
+  basket:
+    - Basket A - All
+    - Basket B - All
+    - Basket Junior - All
+  hockey:
+    - Hockey - All
+
+tout-terrain:
+  cross-country:
+    - Cross-country - Espoir
+    - Cross-country - Élite
+  cyclo-cross:
+    - Cyclocross - Tous
+
+urbain:
+  flat:
+    - Flat - Espoir
+    - Flat - Élite
+  street:
+    - Street - Espoir
+    - Street - Élite
+  trial:
+    - Trial - All
