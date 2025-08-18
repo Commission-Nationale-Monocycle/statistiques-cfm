@@ -1,4 +1,4 @@
-mod events_mapping;
-mod events_configuration;
+pub mod events_mapping;
+pub mod events_configuration;
 mod error;
 

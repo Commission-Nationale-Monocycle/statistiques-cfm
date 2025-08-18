@@ -1,11 +1,13 @@
 categories:
   athletisme:
     name: Athlétisme
+    can_regroup: true
     events:
       100m: 100m
 
   artistique:
     name: Artistique
+    can_regroup: false
     events:
       individuel: Individuel
       paire: Paire

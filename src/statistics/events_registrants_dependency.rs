@@ -1,14 +1,63 @@
 //! Whether a couple of events shares a lot of registrants.
 
+use crate::configuration::events_configuration::EventsConfiguration;
+use crate::configuration::events_mapping::CategoriesMapping;
 use crate::registration::convention::load_convention;
 use crate::registration::registrant::Registrant;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
-pub fn generate_csv_file(file: &PathBuf) -> String {
+pub fn generate_csv_file(file: &PathBuf, events_mapping: &CategoriesMapping, events_configuration: &EventsConfiguration) -> String {
     let convention = load_convention(file).unwrap();
     let registrants = convention.participants_by_event();
-    let dependencies = compute_dependencies(registrants);
+
+    // Let's regroup events and categories that can be grouped
+    // `events_to_regroup` maps each event to its category
+    let mut events_to_regroup = HashMap::new();
+    for (category_name, events_category) in events_configuration.categories() {
+        if *events_category.can_regroup() {
+            events_category.events()
+                .iter()
+                .for_each(|event| {
+                    events_to_regroup.insert(event.0, category_name);
+                });
+        }
+    }
+
+    let events = convention.events();
+    let mut grouped_events = HashSet::new();
+    let mut grouped_registrants = HashMap::new();
+    for (i, event) in events.iter().enumerate() {
+        for (category_id, events_mapped_to_category) in events_mapping {
+            for (event_key, possible_events_names) in events_mapped_to_category {
+                if possible_events_names.contains(event.name()) {
+                    if events_to_regroup.contains_key(event_key) {
+                        grouped_events.insert(category_id);
+                        grouped_registrants.entry(category_id)
+                            .or_insert_with(HashSet::new)
+                            .extend(registrants.get(i).unwrap());
+                    } else {
+                        grouped_events.insert(event.name());
+                        grouped_registrants.insert(event.name(), registrants.get(i).unwrap().iter().collect::<HashSet<_>>());
+                    }
+                }
+            }
+        }
+    }
+
+    let mut grouped_events = grouped_events.into_iter().collect::<Vec<_>>();
+    grouped_events.sort();
+    let grouped_registrants = grouped_events.iter()
+        .map(|grouped_event| grouped_registrants
+            .get(grouped_event)
+            .unwrap()
+            .iter()
+            .cloned()
+            .collect())
+        .collect::<Vec<_>>();
+
+    // Now, we can compute dependencies
+    let dependencies = compute_dependencies(&grouped_registrants);
     let dependencies: Vec<Vec<String>> = dependencies
         .iter()
         .map(|dependencies| {
@@ -19,14 +68,13 @@ pub fn generate_csv_file(file: &PathBuf) -> String {
         })
         .collect();
 
-    let events = convention.events();
-    let mut content = format!(";{}", events
+    let mut content = format!(";{}", grouped_events
         .iter()
-        .map(|event| event.name().clone())
+        .map(|event_or_category| (*event_or_category).clone())
         .reduce(|acc, name| format!("{acc};{name}"))
         .unwrap());
 
-    for (i, event) in events.iter().enumerate() {
+    for (i, event) in grouped_events.iter().enumerate() {
         let line = dependencies
             .get(i)
             .unwrap()
@@ -34,17 +82,13 @@ pub fn generate_csv_file(file: &PathBuf) -> String {
             .cloned()
             .reduce(|acc, dependency| format!("{acc};{dependency}"))
             .unwrap();
-        content = format!("{content}\n{};{line}", event.name());
+        content = format!("{content}\n{};{line}", event);
     }
 
     content
 }
 
-fn compute_dependencies(registrants: &[Vec<Registrant>]) -> Vec<Vec<(usize, usize)>> {
-    let registrants: Vec<HashSet<&Registrant>> = registrants
-        .iter()
-        .map(|r| r.iter().collect())
-        .collect();
+fn compute_dependencies(registrants: &[HashSet<&Registrant>]) -> Vec<Vec<(usize, usize)>> {
     
     registrants
         .iter()
@@ -114,6 +158,7 @@ mod tests {
     }
 
     mod compute_dependencies {
+        use std::collections::HashSet;
         use super::test_registrants;
         use crate::statistics::events_registrants_dependency::compute_dependencies;
 
@@ -129,11 +174,11 @@ mod tests {
 
             let (r1, r2, r3, r4) = test_registrants();
 
-            let registrants_1 = vec![r1.clone(), r2.clone()];
-            let registrants_2 = vec![r2.clone(), r3.clone(), r4.clone()];
-            let registrants_3 = vec![r1.clone(), r3.clone(), r4.clone()];
-            let registrants_4 = vec![r1, r2, r3, r4];
-            let registrants_5 = vec![];
+            let registrants_1 = HashSet::from([&r1, &r2]);
+            let registrants_2 = HashSet::from([&r2, &r3, &r4]);
+            let registrants_3 = HashSet::from([&r1, &r3, &r4]);
+            let registrants_4 = HashSet::from([&r1, &r2, &r3, &r4]);
+            let registrants_5 = HashSet::from([]);
 
             let result = compute_dependencies(&[registrants_1,
                 registrants_2,
