@@ -2,8 +2,9 @@ use crate::configuration::error::Result;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
+use derive_getters::Getters;
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq, Getters)]
 pub struct EventsConfiguration {
     categories: HashMap<String, EventsCategory>,
 }
@@ -15,7 +16,7 @@ impl EventsConfiguration {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Clone, PartialEq, Eq, Getters)]
 pub struct EventsCategory {
     name: String,
     can_regroup: bool,
